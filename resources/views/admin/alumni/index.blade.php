@@ -92,15 +92,18 @@ use App\Models\Alumni;
                     <div class="card-body bg-white rounded-3">
                         <div class="row align-items-center">
                             <div class="col-md-8">
+                                <!-- Di dalam div class="d-flex gap-3" -->
                                 <div class="d-flex gap-3">
-                                   
-                                    <form action="{{ route('admin.alumni.import') }}" method="POST" enctype="multipart/form-data" class="d-flex gap-2">
-                                        @csrf
-                                        <input type="file" name="file" class="form-control" required accept=".xlsx,.xls,.csv">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="bi bi-cloud-upload-fill me-2"></i>Import
-                                        </button>
-                                    </form>
+                                    <!-- Near the top of your table or content area -->
+                                    <div class="mb-3">
+                                        <a href="{{ route('admin.alumni.create') }}" class="btn btn-success me-2">
+                                            <i class="bi bi-plus-circle me-2"></i>Tambah Data
+                                        </a>
+                                        <a href="{{ route('admin.alumni.import-form') }}" class="btn btn-primary me-2">
+                                            <i class="bi bi-upload me-2"></i>Import Excel
+                                        </a>
+                                        
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -136,6 +139,7 @@ use App\Models\Alumni;
                                         <th class="py-3">Pekerjaan</th>
                                         <th class="py-3">Perusahaan</th>
                                         <th class="py-3">Bidang</th>
+                                        <th class="py-3">Rata-rata Gaji</th>
                                         <th class="py-3">Relevansi</th>
                                         <th class="px-4 py-3 text-center">Aksi</th>
                                     </tr>
@@ -151,6 +155,7 @@ use App\Models\Alumni;
                                         <td>{{ $alum->pekerjaan ?: '-' }}</td>
                                         <td>{{ $alum->perusahaan ?: '-' }}</td>
                                         <td>{{ $alum->bidang ?: '-' }}</td>
+                                        <td>{{ $alum->rata_rata_gaji ? 'Rp ' . number_format($alum->rata_rata_gaji, 0, ',', '.') : '-' }}</td>
                                         <td>
                                             @if($alum->relevansi)
                                                 <span class="badge bg-success">Sesuai</span>
@@ -160,13 +165,48 @@ use App\Models\Alumni;
                                         </td>
                                         <td class="px-4 text-center">
                                             <div class="btn-group">
+                                                <!-- Edit Relevance Button -->
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-warning me-2" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#editRelevanceModal{{ $alum->id }}">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                                <!-- Delete Button -->
                                                 <button type="button" 
                                                         class="btn btn-sm btn-danger delete-alumni" 
-                                                        data-id="{{ $alum->id }}"
-                                                        data-bs-toggle="tooltip" 
-                                                        title="Hapus">
+                                                        data-id="{{ $alum->id }}">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
+                                            </div>
+                                        
+                                            <!-- Edit Relevance Modal -->
+                                            <div class="modal fade" id="editRelevanceModal{{ $alum->id }}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Relevansi</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <form action="{{ route('admin.alumni.update', $alum->id) }}" method="POST">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <div class="modal-body">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Status Relevansi</label>
+                                                                    <select name="relevansi" class="form-select">
+                                                                        <option value="1" {{ $alum->relevansi ? 'selected' : '' }}>Sesuai</option>
+                                                                        <option value="0" {{ !$alum->relevansi ? 'selected' : '' }}>Tidak Sesuai</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -239,6 +279,48 @@ use App\Models\Alumni;
             }
         });
     });
+    // Add this new code for handling form submissions
+    document.querySelectorAll('[id^="editRelevanceModal"]').forEach(modal => {
+    const form = modal.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(new FormData(this))
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the badge in the table
+                const row = this.closest('tr');
+                const relevanceBadge = row.querySelector('td:nth-last-child(2) .badge');
+                const newValue = this.querySelector('select[name="relevansi"]').value;
+                
+                if (newValue === '1') {
+                    relevanceBadge.className = 'badge bg-success';
+                    relevanceBadge.textContent = 'Sesuai';
+                } else {
+                    relevanceBadge.className = 'badge bg-warning';
+                    relevanceBadge.textContent = 'Tidak Sesuai';
+                }
+                
+                // Close the modal
+                bootstrap.Modal.getInstance(modal).hide();
+            } else {
+                alert('Gagal mengupdate data');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat mengupdate data');
+        });
+    });
+});
 </script>
 @endpush
 

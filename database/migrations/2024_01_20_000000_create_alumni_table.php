@@ -12,12 +12,13 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('nim')->unique();
-            $table->integer('tahun_yudisium');  // Changed from year to integer
-            $table->integer('tahun_lulus');     // Changed from year to integer
+            $table->integer('tahun_yudisium');
+            $table->integer('tahun_lulus');
             $table->string('periode_wisuda');
             $table->string('pekerjaan')->nullable();
             $table->string('perusahaan')->nullable();
             $table->string('bidang')->nullable();
+            $table->decimal('rata_rata_gaji', 12, 2)->nullable(); // Kolom baru untuk rata-rata gaji
             $table->boolean('relevansi')->default(false);
             $table->timestamps();
         });

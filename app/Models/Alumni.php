@@ -12,11 +12,12 @@ class Alumni extends Model
         'nama',
         'nim',
         'tahun_lulus',
-        'tahun_yudisium',
         'periode_wisuda',
+        'tahun_yudisium',
         'pekerjaan',
         'perusahaan',
         'bidang',
+        'rata_rata_gaji',
         'relevansi'
     ];
 

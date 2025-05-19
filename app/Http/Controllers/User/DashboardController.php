@@ -12,10 +12,14 @@ class DashboardController extends Controller
     public function index()
     {
         // Data untuk cards
+        $avgSalary = Alumni::whereNotNull('rata_rata_gaji')
+                          ->where('rata_rata_gaji', '>', 0)
+                          ->avg('rata_rata_gaji');
+
         $summary = [
             'total_alumni' => Alumni::count(),
             'employed' => Alumni::whereNotNull('pekerjaan')->count(),
-            'avg_salary' => 0,
+            'avg_salary' => $avgSalary ?? 0,
             'avg_waiting_time' => 0 // Setting default value instead of querying non-existent column
         ];
 

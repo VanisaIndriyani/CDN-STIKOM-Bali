@@ -12,7 +12,8 @@
 
     <!-- Enhanced Summary Cards -->
     <div class="row g-4 mb-5">
-        <div class="col-md-3">
+        <!-- Total Alumni Card -->
+        <div class="col-md-4">
             <div class="card h-100 shadow-sm hover-shadow" style="border-radius: 15px; border: none; transition: all 0.3s;">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -27,8 +28,9 @@
                 </div>
             </div>
         </div>
-        <!-- Similar enhancements for other cards -->
-        <div class="col-md-3">
+
+        <!-- Employed Alumni Card -->
+        <div class="col-md-4">
             <div class="card h-100 shadow-sm hover-shadow" style="border-radius: 15px; border: none; transition: all 0.3s;">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -43,37 +45,31 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
+
+        <!-- Average Salary Card -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm hover-shadow" style="border-radius: 15px; border: none; transition: all 0.3s;">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-info bg-opacity-10 p-3">
-                            <i class="bi bi-cash-stack text-info fs-4"></i>
+                            <i class="bi bi-cash-stack text-info fs-3"></i>
                         </div>
                         <div class="ms-3">
-                            <h6 class="text-muted mb-1">Rata-rata Gaji</h6>
-                            <h3 class="mb-0">{{ number_format($summary['avg_salary']/1000000, 1) }}jt</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-warning bg-opacity-10 p-3">
-                            <i class="bi bi-clock text-warning fs-4"></i>
-                        </div>
-                        <div class="ms-3">
-                            <h6 class="text-muted mb-1">Rata-rata Masa Tunggu</h6>
-                            <h3 class="mb-0">{{ number_format($summary['avg_waiting_time'], 1) }} bln</h3>
+                            <h6 class="text-muted mb-1 small text-uppercase">Rata-rata Gaji</h6>
+                            <h3 class="mb-0 fw-bold text-info">
+                                @if($summary['avg_salary'] > 0)
+                                    {{ 'Rp ' . number_format($summary['avg_salary']/1000000, 1) }}jt
+                                @else
+                                    -
+                                @endif
+                            </h3>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+       
 
     <!-- Enhanced Charts Section -->
     <div class="row g-4 mb-5">
